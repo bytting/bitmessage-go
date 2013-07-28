@@ -45,7 +45,7 @@ func New(addressVersion, stream uint64, eighteenByteRipe bool) *Address {
 
 	var ripe []byte
 
-	for true {
+	for {
 		addr.EncryptionKey, err = bitecdsa.GenerateKey(bitelliptic.S256(), rand.Reader)
 		if err != nil {
 			log.Fatalln("Error generating ecdsa encryption keys", err)
