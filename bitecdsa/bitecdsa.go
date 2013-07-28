@@ -14,7 +14,7 @@ package bitecdsa
 //     http://www.secg.org/download/aid-780/sec1-v2.pdf
 
 import (
-	"bitmessage/bitelliptic"
+	"bitmessage-go/bitelliptic"
 	"io"
 	"math/big"
 )

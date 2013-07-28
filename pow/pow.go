@@ -18,7 +18,7 @@
 package pow
 
 import (
-	"bitmessage/varint"
+	"bitmessage-go/varint"
 	"crypto/sha512"
 	"encoding/binary"
 	"runtime"

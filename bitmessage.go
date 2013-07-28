@@ -18,9 +18,9 @@
 package main
 
 import (
-	"bitmessage/address"
-	"bitmessage/base58"
-	"bitmessage/varint"
+	"bitmessage-go/address"
+	"bitmessage-go/base58"
+	"bitmessage-go/varint"
 	"bytes"
 	"fmt"
 )

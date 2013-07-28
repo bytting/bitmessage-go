@@ -1,8 +1,8 @@
 package wif
 
 import (
-	"bitmessage/bitecdsa"
-	"bitmessage/bitelliptic"
+	"bitmessage-go/bitecdsa"
+	"bitmessage-go/bitelliptic"
 	"bytes"
 	"crypto/rand"
 	"encoding/hex"

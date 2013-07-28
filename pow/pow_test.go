@@ -1,7 +1,7 @@
 package pow
 
 import (
-	"bitmessage/varint"
+	"bitmessage-go/varint"
 	"io/ioutil"
 	"testing"
 )

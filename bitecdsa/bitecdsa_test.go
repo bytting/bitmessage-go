@@ -6,7 +6,7 @@
 package bitecdsa
 
 import (
-	"bitmessage/bitelliptic"
+	"bitmessage-go/bitelliptic"
 	"crypto/rand"
 	"encoding/base64"
 	"math/big"

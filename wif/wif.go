@@ -18,9 +18,9 @@
 package wif
 
 import (
-	"bitmessage/base58"
-	"bitmessage/bitecdsa"
-	"bitmessage/bitelliptic"
+	"bitmessage-go/base58"
+	"bitmessage-go/bitecdsa"
+	"bitmessage-go/bitelliptic"
 	"bytes"
 	"crypto/sha256"
 	"math/big"

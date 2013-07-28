@@ -18,11 +18,11 @@
 package address
 
 import (
-	"bitmessage/base58"
-	"bitmessage/bitecdsa"
-	"bitmessage/bitelliptic"
-	"bitmessage/ripemd160"
-	"bitmessage/varint"
+	"bitmessage-go/base58"
+	"bitmessage-go/bitecdsa"
+	"bitmessage-go/bitelliptic"
+	"bitmessage-go/ripemd160"
+	"bitmessage-go/varint"
 	"bytes"
 	"crypto/rand"
 	"crypto/sha512"
