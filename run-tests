@@ -1,0 +1,10 @@
+#!/bin/bash
+
+go test bitmessage/varint
+go test bitmessage/base58
+go test bitmessage/ripemd160
+go test bitmessage/address
+go test bitmessage/wif
+go test bitmessage/bitelliptic
+go test bitmessage/bitecdsa
+go test bitmessage/pow
