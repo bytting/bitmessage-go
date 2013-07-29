@@ -18,10 +18,11 @@
 package pow
 
 import (
-	"bitmessage-go/varint"
 	"crypto/sha512"
 	"encoding/binary"
 	"runtime"
+
+	"bitmessage-go/varint"
 )
 
 func scan(offset_start, offset_end, target uint64, payload_hash []byte, out chan<- uint64, done chan<- bool, shutdown *bool) {
@@ -31,12 +32,10 @@ func scan(offset_start, offset_end, target uint64, payload_hash []byte, out chan
 	h1, h2 := sha512.New(), sha512.New()
 
 	for trials > target {
-		if *shutdown {
-			done <- true
-			return
-		}
+
 		nonce++
-		if nonce > offset_end {
+		if nonce > offset_end || *shutdown {
+			done <- true
 			return
 		}
 		b := varint.Encode(nonce)

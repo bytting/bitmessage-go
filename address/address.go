@@ -18,15 +18,16 @@
 package address
 
 import (
+	"bytes"
+	"crypto/rand"
+	"crypto/sha512"
+	"log"
+
 	"bitmessage-go/base58"
 	"bitmessage-go/bitecdsa"
 	"bitmessage-go/bitelliptic"
 	"bitmessage-go/ripemd160"
 	"bitmessage-go/varint"
-	"bytes"
-	"crypto/rand"
-	"crypto/sha512"
-	"log"
 )
 
 type Address struct {

@@ -18,12 +18,13 @@
 package wif
 
 import (
-	"bitmessage-go/base58"
-	"bitmessage-go/bitecdsa"
-	"bitmessage-go/bitelliptic"
 	"bytes"
 	"crypto/sha256"
 	"math/big"
+
+	"bitmessage-go/base58"
+	"bitmessage-go/bitecdsa"
+	"bitmessage-go/bitelliptic"
 )
 
 func Encode(keys *bitecdsa.PrivateKey) (wif string) {
