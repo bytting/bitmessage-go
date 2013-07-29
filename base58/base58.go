@@ -19,6 +19,7 @@ package base58
 
 import (
 	"bytes"
+	"errors"
 	"math/big"
 	"strings"
 )
@@ -27,8 +28,11 @@ const (
 	alphabet58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 )
 
-func Encode(b []byte) string {
+func Encode(b []byte) (string, error) {
 
+	if len(b) < 1 {
+		return "", errors.New("base58.Encode: Byte slice is too short")
+	}
 	zero := big.NewInt(0)
 	val := big.NewInt(0)
 	val.SetBytes(b)
@@ -37,7 +41,7 @@ func Encode(b []byte) string {
 
 	if val.Cmp(zero) == 0 {
 		buffer.WriteByte(alphabet58[0])
-		return buffer.String()
+		return buffer.String(), nil
 	}
 
 	n := val
@@ -55,10 +59,10 @@ func Encode(b []byte) string {
 		buffer.Bytes()[i], buffer.Bytes()[length-1-i] = buffer.Bytes()[length-1-i], buffer.Bytes()[i]
 	}
 
-	return buffer.String()
+	return buffer.String(), nil
 }
 
-func Decode(encoded string) []byte {
+func Decode(encoded string) ([]byte, error) {
 
 	bn := big.NewInt(0)
 	base := big.NewInt(58)
@@ -67,7 +71,7 @@ func Decode(encoded string) []byte {
 	for i := 0; i < len(encoded); i++ {
 		pos := strings.IndexRune(alphabet58, rune(encoded[i]))
 		if pos == -1 {
-			panic("Character not present in base58")
+			return nil, errors.New("base58.Decode: Character not present in base58")
 		}
 		tmp.SetUint64(uint64(pos))
 
@@ -75,5 +79,5 @@ func Decode(encoded string) []byte {
 		bn.Add(bn, tmp)
 	}
 
-	return bn.Bytes()
+	return bn.Bytes(), nil
 }

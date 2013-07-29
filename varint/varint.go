@@ -30,15 +30,15 @@ func Encode(value uint64) []byte {
 		return buf[:1]
 	} else if value >= 253 && value < 65536 {
 		buf[0] = 253
-		binary.BigEndian.PutUint16(buf[1:], uint16(value))
+		binary.BigEndian.PutUint16(buf[1:3], uint16(value))
 		return buf[:3]
 	} else if value >= 65536 && value < 4294967296 {
 		buf[0] = 254
-		binary.BigEndian.PutUint32(buf[1:], uint32(value))
+		binary.BigEndian.PutUint32(buf[1:5], uint32(value))
 		return buf[:5]
 	} else {
 		buf[0] = 255
-		binary.BigEndian.PutUint64(buf[1:], uint64(value))
+		binary.BigEndian.PutUint64(buf[1:9], uint64(value))
 		return buf[:9]
 	}
 }

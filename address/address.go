@@ -21,7 +21,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha512"
-	"log"
+	"errors"
 
 	"bitmessage-go/base58"
 	"bitmessage-go/bitecdsa"
@@ -35,13 +35,13 @@ type Address struct {
 	SigningKey, EncryptionKey *bitecdsa.PrivateKey
 }
 
-func New(addressVersion, stream uint64, eighteenByteRipe bool) *Address {
+func New(addressVersion, stream uint64, eighteenByteRipe bool) (*Address, error) {
 
 	var err error
 	addr := new(Address)
 	addr.SigningKey, err = bitecdsa.GenerateKey(bitelliptic.S256(), rand.Reader)
 	if err != nil {
-		log.Fatalln("Error generating ecdsa signing keys", err)
+		return nil, errors.New("address.New: Error generating ecdsa signing keys")
 	}
 
 	var ripe []byte
@@ -49,7 +49,7 @@ func New(addressVersion, stream uint64, eighteenByteRipe bool) *Address {
 	for {
 		addr.EncryptionKey, err = bitecdsa.GenerateKey(bitelliptic.S256(), rand.Reader)
 		if err != nil {
-			log.Fatalln("Error generating ecdsa encryption keys", err)
+			return nil, errors.New("address.New: Error generating ecdsa encryption keys")
 		}
 
 		var keyMerge []byte
@@ -88,13 +88,20 @@ func New(addressVersion, stream uint64, eighteenByteRipe bool) *Address {
 	checksum := sha2.Sum(nil)[:4]
 	bmAddr = append(bmAddr, checksum...)
 
-	addr.Identifier = "BM-" + base58.Encode(bmAddr)
-	return addr
+	encoded, err := base58.Encode(bmAddr)
+	if err != nil {
+		return nil, err
+	}
+	addr.Identifier = "BM-" + encoded
+	return addr, nil
 }
 
-func Validate(address string) bool {
+func Validate(address string) (bool, error) {
 
-	b := base58.Decode(address[3:])
+	b, err := base58.Decode(address[3:])
+	if err != nil {
+		return false, err
+	}
 	raw := b[:len(b)-4]
 	cs1 := b[len(b)-4:]
 
@@ -103,17 +110,25 @@ func Validate(address string) bool {
 	sha2.Write(sha1.Sum(nil))
 	cs2 := sha2.Sum(nil)[:4]
 
-	return bytes.Compare(cs1, cs2) == 0
+	return bytes.Compare(cs1, cs2) == 0, nil
 }
 
-func GetStream(address string) uint64 {
+func GetStream(address string) (uint64, error) {
 
-	if !Validate(address) {
-		panic("Invalid address checksum")
+	valid, err := Validate(address)
+	if err != nil {
+		return 0, err
 	}
 
-	b := base58.Decode(address[3:])
+	if !valid {
+		return 0, errors.New("address.GetStream: Invalid address checksum")
+	}
+
+	b, err := base58.Decode(address[3:])
+	if err != nil {
+		return 0, err
+	}
 	_, nb := varint.Decode(b)
 	s, _ := varint.Decode(b[nb:])
-	return s
+	return s, nil
 }

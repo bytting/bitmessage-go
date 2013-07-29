@@ -1,12 +1,13 @@
 package wif
 
 import (
-	"bitmessage-go/bitecdsa"
-	"bitmessage-go/bitelliptic"
 	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"testing"
+
+	"bitmessage-go/bitecdsa"
+	"bitmessage-go/bitelliptic"
 )
 
 func TestKeys(t *testing.T) {
@@ -17,12 +18,18 @@ func TestKeys(t *testing.T) {
 
 	keys1, err := bitecdsa.GenerateKey(bitelliptic.S256(), rand.Reader)
 	if err != nil {
-		t.Error("Failed to generate private key\n")
+		t.Error(err.Error())
 	}
 
-	wif := Encode(keys1)
+	wif, err := Encode(keys1)
+	if err != nil {
+		t.Error(err.Error())
+	}
 
-	keys2 := Decode(wif)
+	keys2, err := Decode(wif)
+	if err != nil {
+		t.Error(err.Error())
+	}
 
 	if bytes.Compare(keys1.D.Bytes(), keys2.D.Bytes()) != 0 {
 		t.Error("Private keys are different. Expected %x, got %x\n", keys1.D.Bytes(), keys2.D.Bytes())
@@ -42,7 +49,7 @@ func TestKeys(t *testing.T) {
 
 	// 0437a3191fe90d9b483324c28ecd019479e708cfcff96800131c113ec30a0646ee95c31b4c5656b1e7122f071ae4471a97511f372179147277ea2a2087147f9486
 
-	keys3 := Decode("5HtKNfWZH4QQZPUGRadud7wfyPGEKLhQJfnYPGvpiivgwfrHfpX")
+	keys3, err := Decode("5HtKNfWZH4QQZPUGRadud7wfyPGEKLhQJfnYPGvpiivgwfrHfpX")
 	privHex := hex.EncodeToString(keys3.D.Bytes())
 	if privHex != "092715c60df8c561c832ab3c804be0a0f90b108072133df7d1e348e2570be801" {
 		t.Error("Private key (keys3) is wrong. Expected 092715c60df8c561c832ab3c804be0a0f90b108072133df7d1e348e2570be801, got %s\n", privHex)

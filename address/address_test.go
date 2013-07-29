@@ -11,17 +11,29 @@ func TestAddress(t *testing.T) {
 		t.Skip("skipping test in short mode.")
 	}
 
-	addr := New(3, 1, false)
+	addr, err := New(3, 1, false)
+	if err != nil {
+		t.Error(err.Error())
+	}
 
 	if !strings.HasPrefix(addr.Identifier, "BM-2D") {
 		t.Error("Address does not start with correct prefix. Want BM-2D, got %s\n", addr.Identifier[:5])
 	}
 
-	if !Validate(addr.Identifier) {
+	valid, err := Validate(addr.Identifier)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if !valid {
 		t.Error("Address checksum incorrect\n")
 	}
 
-	if GetStream(addr.Identifier) != 1 {
-		t.Error("Address stream number incorrect. Want 1, got %d\n", GetStream(addr.Identifier))
+	stream, err := GetStream(addr.Identifier)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if stream != 1 {
+		t.Error("Address stream number incorrect. Want 1, got %d\n", stream)
 	}
 }

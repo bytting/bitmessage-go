@@ -20,6 +20,7 @@ package wif
 import (
 	"bytes"
 	"crypto/sha256"
+	"errors"
 	"math/big"
 
 	"bitmessage-go/base58"
@@ -27,7 +28,7 @@ import (
 	"bitmessage-go/bitelliptic"
 )
 
-func Encode(keys *bitecdsa.PrivateKey) (wif string) {
+func Encode(keys *bitecdsa.PrivateKey) (string, error) {
 
 	var extended bytes.Buffer
 	extended.WriteByte(byte(0x80))
@@ -37,16 +38,23 @@ func Encode(keys *bitecdsa.PrivateKey) (wif string) {
 	sha2.Write(sha1.Sum(nil))
 	checksum := sha2.Sum(nil)[:4]
 	extended.Write(checksum)
-	return base58.Encode(extended.Bytes())
+	encoded, err := base58.Encode(extended.Bytes())
+	if err != nil {
+		return "", err
+	}
+	return encoded, nil
 }
 
-func Decode(wif string) *bitecdsa.PrivateKey {
+func Decode(wif string) (*bitecdsa.PrivateKey, error) {
 
 	if len(wif) < 6 {
-		panic("WIF is too short in Decode")
+		return nil, errors.New("wif.Decode: wif is too short")
 	}
 
-	extended := base58.Decode(wif)
+	extended, err := base58.Decode(wif)
+	if err != nil {
+		return nil, err
+	}
 	decoded := extended[1 : len(extended)-4]
 	keys := new(bitecdsa.PrivateKey)
 	keys.D = new(big.Int).SetBytes(decoded)
@@ -54,21 +62,24 @@ func Decode(wif string) *bitecdsa.PrivateKey {
 	for keys.PublicKey.X == nil {
 		keys.PublicKey.X, keys.PublicKey.Y = keys.PublicKey.BitCurve.ScalarBaseMult(decoded)
 	}
-	return keys
+	return keys, nil
 }
 
-func Validate(wif string) bool {
+func Validate(wif string) (bool, error) {
 
-	if len(wif) < 5 {
-		panic("WIF is too short in Validate")
+	if len(wif) < 6 {
+		return false, errors.New("wif.Validate: wif is too short")
 	}
 
-	extended := base58.Decode(wif)
+	extended, err := base58.Decode(wif)
+	if err != nil {
+		return false, err
+	}
 	raw := extended[1 : len(extended)-4]
 	cs1 := extended[len(extended)-4:]
 	sha1, sha2 := sha256.New(), sha256.New()
 	sha1.Write(raw)
 	sha2.Write(sha1.Sum(nil))
 	cs2 := sha2.Sum(nil)[:4]
-	return bytes.Compare(cs1, cs2) == 0
+	return bytes.Compare(cs1, cs2) == 0, nil
 }
