@@ -25,17 +25,17 @@ import (
 )
 
 type Message struct {
-	Magic    [4]byte
-	Command  [12]byte
-	Length   [4]byte
-	Checksum [4]byte
+	Magic    uint32
+	Command  string
+	Length   uint32
+	Checksum []byte
 	Payload  []byte
 }
 
 func NewMessage() *Message {
 
 	m := new(Message)
-	binary.BigEndian.PutUint32(m.Magic[:], 0xe9beb4d9)
+	m.Magic = 0xe9beb4d9 // FIXME check endianess
 	return m
 }
 
@@ -47,55 +47,26 @@ func NewMessageFromCommand(cmd string, payload []byte) (*Message, error) {
 		return nil, errors.New("msg.NewMessage: Command is too long")
 	}
 
-	binary.BigEndian.PutUint32(m.Magic[:], 0xe9beb4d9)
-
-	var i int = 0
-	for ; i < len(cmd); i++ {
-		m.Command[i] = cmd[i]
-	}
-
-	for ; i < len(m.Command); i++ {
-		m.Command[i] = 0
-	}
-
+	m.Magic = 0xe9beb4d9 // FIXME check endianess
+	m.Command = cmd
 	copy(m.Payload, payload)
-
-	binary.BigEndian.PutUint32(m.Length[:], uint32(len(m.Payload)))
+	m.Length = uint32(len(m.Payload))
 
 	sha := sha512.New()
 	sha.Write(m.Payload)
-	copy(m.Checksum[:], sha.Sum(nil)[:4])
+	copy(m.Checksum, sha.Sum(nil)[:4])
 
 	return m, nil
 }
 
-func (m *Message) GetCommand() string {
-
-	var buf bytes.Buffer
-
-	for i := 0; i < len(m.Command); i++ {
-		buf.WriteByte(m.Command[i])
-		if m.Command[i] == 0 {
-			break
-		}
-	}
-
-	return buf.String()
-}
-
-func (m *Message) GetLength() uint32 {
-
-	return binary.BigEndian.Uint32(m.Length[:])
-}
-
 func (m *Message) Serialize() []byte {
 
-	var buf bytes.Buffer
+	buf := new(bytes.Buffer)
 
-	buf.Write(m.Magic[:])
-	buf.Write(m.Command[:])
-	buf.Write(m.Length[:])
-	buf.Write(m.Checksum[:])
+	binary.Write(buf, binary.BigEndian, m.Magic)
+	buf.Write([]byte(m.Command))
+	binary.Write(buf, binary.BigEndian, m.Length)
+	buf.Write(m.Checksum)
 	buf.Write(m.Payload)
 
 	return buf.Bytes()
@@ -103,10 +74,9 @@ func (m *Message) Serialize() []byte {
 
 func (m *Message) Deserialize(packet []byte) {
 
-	copy(m.Magic[:], packet[:4])
-	copy(m.Command[:], packet[4:16])
-	copy(m.Length[:], packet[20:24])
-	length := binary.BigEndian.Uint32(m.Length[:])
-	copy(m.Checksum[:], packet[24:28])
-	copy(m.Payload[:], packet[28:length])
+	m.Magic = binary.BigEndian.Uint32(packet[:4])
+	m.Command = string(packet[4:16])
+	m.Length = binary.BigEndian.Uint32(packet[16:20])
+	m.Checksum = packet[20:24]
+	m.Payload = packet[24:]
 }
