@@ -32,7 +32,14 @@ type Message struct {
 	Payload  []byte
 }
 
-func NewMessage(cmd string, payload []byte) (*Message, error) {
+func NewMessage() *Message {
+
+	m := new(Message)
+	binary.BigEndian.PutUint32(m.Magic[:], 0xe9beb4d9)
+	return m
+}
+
+func NewMessageFromCommand(cmd string, payload []byte) (*Message, error) {
 
 	m := new(Message)
 
@@ -62,6 +69,25 @@ func NewMessage(cmd string, payload []byte) (*Message, error) {
 	return m, nil
 }
 
+func (m *Message) GetCommand() string {
+
+	var buf bytes.Buffer
+
+	for i := 0; i < len(m.Command); i++ {
+		buf.WriteByte(m.Command[i])
+		if m.Command[i] == 0 {
+			break
+		}
+	}
+
+	return buf.String()
+}
+
+func (m *Message) GetLength() uint32 {
+
+	return binary.BigEndian.Uint32(m.Length[:])
+}
+
 func (m *Message) Serialize() []byte {
 
 	var buf bytes.Buffer
@@ -73,4 +99,14 @@ func (m *Message) Serialize() []byte {
 	buf.Write(m.Payload)
 
 	return buf.Bytes()
+}
+
+func (m *Message) Deserialize(packet []byte) {
+
+	copy(m.Magic[:], packet[:4])
+	copy(m.Command[:], packet[4:16])
+	copy(m.Length[:], packet[20:24])
+	length := binary.BigEndian.Uint32(m.Length[:])
+	copy(m.Checksum[:], packet[24:28])
+	copy(m.Payload[:], packet[28:length])
 }
