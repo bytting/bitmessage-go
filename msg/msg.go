@@ -32,14 +32,7 @@ type Message struct {
 	Payload  []byte
 }
 
-func NewMessage() *Message {
-
-	m := new(Message)
-	m.Magic = 0xe9beb4d9 // FIXME check endianess
-	return m
-}
-
-func NewMessageFromCommand(cmd string, payload []byte) (*Message, error) {
+func New(cmd string, payload []byte) (*Message, error) {
 
 	m := new(Message)
 
@@ -49,34 +42,76 @@ func NewMessageFromCommand(cmd string, payload []byte) (*Message, error) {
 
 	m.Magic = 0xe9beb4d9 // FIXME check endianess
 	m.Command = cmd
-	copy(m.Payload, payload)
+	m.Payload = payload
 	m.Length = uint32(len(m.Payload))
 
 	sha := sha512.New()
 	sha.Write(m.Payload)
-	copy(m.Checksum, sha.Sum(nil)[:4])
+	m.Checksum = sha.Sum(nil)[:4]
 
 	return m, nil
 }
 
-func (m *Message) Serialize() []byte {
+func (m *Message) Serialize() ([]byte, error) {
+
+	if len(m.Command) == 0 || len(m.Checksum) != 4 || len(m.Payload) == 0 {
+		return nil, errors.New("msg.Serialize: Message is incomplete")
+	}
+
+	if m.Magic != 0xe9beb4d9 {
+		return nil, errors.New("msg.Serialize: Magic number is invalid")
+	}
+
+	if int(m.Length) != len(m.Payload) {
+		return nil, errors.New("msg.Serialize: Message length is invalid")
+	}
 
 	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.BigEndian, m.Magic)
-	buf.Write([]byte(m.Command))
+	for i := 0; i < 12; i++ {
+		if i < len(m.Command) {
+			buf.WriteByte(m.Command[i])
+		} else {
+			buf.WriteByte(byte(0))
+		}
+	}
 	binary.Write(buf, binary.BigEndian, m.Length)
 	buf.Write(m.Checksum)
 	buf.Write(m.Payload)
 
-	return buf.Bytes()
+	return buf.Bytes(), nil
 }
 
-func (m *Message) Deserialize(packet []byte) {
+func Deserialize(packet []byte) (*Message, error) {
+
+	if len(packet) < 25 {
+		return nil, errors.New("msg.Deserialize: Packet length is too small")
+	}
+
+	m := new(Message)
 
 	m.Magic = binary.BigEndian.Uint32(packet[:4])
-	m.Command = string(packet[4:16])
+	if m.Magic != 0xe9beb4d9 {
+		return nil, errors.New("msg.Deserialize: Magic number is invalid")
+	}
+
+	var cmd bytes.Buffer
+	for i := 0; i < 12; i++ {
+		if packet[4+i] == 0 {
+			break
+		}
+		cmd.WriteByte(packet[4+i])
+	}
+	m.Command = cmd.String()
+
 	m.Length = binary.BigEndian.Uint32(packet[16:20])
 	m.Checksum = packet[20:24]
 	m.Payload = packet[24:]
+
+	if int(m.Length) != len(m.Payload) {
+		return nil, errors.New("msg.Deserialize: Message length is invalid")
+	}
+
+	return m, nil
 }
