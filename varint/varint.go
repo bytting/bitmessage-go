@@ -36,11 +36,10 @@ func Encode(value uint64) []byte {
 		buf[0] = 254
 		binary.BigEndian.PutUint32(buf[1:5], uint32(value))
 		return buf[:5]
-	} else {
-		buf[0] = 255
-		binary.BigEndian.PutUint64(buf[1:9], uint64(value))
-		return buf[:9]
 	}
+	buf[0] = 255
+	binary.BigEndian.PutUint64(buf[1:9], uint64(value))
+	return buf[:9]
 }
 
 func Decode(buffer []byte) (uint64, int) {
@@ -53,7 +52,6 @@ func Decode(buffer []byte) (uint64, int) {
 		return uint64(binary.BigEndian.Uint16(buffer[1:])), 3
 	} else if firstByte == 254 {
 		return uint64(binary.BigEndian.Uint32(buffer[1:])), 5
-	} else {
-		return uint64(binary.BigEndian.Uint64(buffer[1:])), 9
 	}
+	return uint64(binary.BigEndian.Uint64(buffer[1:])), 9
 }

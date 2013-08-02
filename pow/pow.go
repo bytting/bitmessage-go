@@ -25,9 +25,15 @@ import (
 	"bitmessage-go/varint"
 )
 
+const (
+	PAYLOAD_LENGTH_EXTRA_BYTES                  = 14000
+	AVERAGE_PROOF_OF_WORK_NONCE_TRIALS_PER_BYTE = 320
+	MAX_UINT64                                  = 18446744073709551615
+)
+
 func scan(offset_start, offset_end, target uint64, payload_hash []byte, out chan<- uint64, done chan<- bool, shutdown *bool) {
 
-	var trials uint64 = 18446744073709551615
+	var trials uint64 = MAX_UINT64
 	var nonce uint64 = offset_start
 	h1, h2 := sha512.New(), sha512.New()
 
@@ -61,10 +67,10 @@ func Nonce(payload []byte) uint64 {
 	sha := sha512.New()
 	sha.Write(payload)
 	payload_hash := sha.Sum(nil)
-	var target uint64 = 18446744073709551615 / uint64((len(payload)+14000+8)*320)
+	var target uint64 = MAX_UINT64 / uint64((len(payload)+PAYLOAD_LENGTH_EXTRA_BYTES+8)*AVERAGE_PROOF_OF_WORK_NONCE_TRIALS_PER_BYTE)
 
 	var nprocs int = 1000
-	var i, slice uint64 = 0, 18446744073709551615 / uint64(nprocs)
+	var i, slice uint64 = 0, MAX_UINT64 / uint64(nprocs)
 
 	recv := make(chan uint64, nprocs)
 	done := make(chan bool, nprocs)
@@ -101,7 +107,7 @@ func Validate(payload []byte) bool {
 	sha.Write(initial_payload)
 	initial_hash := sha.Sum(nil)
 
-	var target uint64 = 18446744073709551615 / uint64((len(payload)+14000+8)*320)
+	var target uint64 = MAX_UINT64 / uint64((len(payload)+PAYLOAD_LENGTH_EXTRA_BYTES+8)*AVERAGE_PROOF_OF_WORK_NONCE_TRIALS_PER_BYTE)
 
 	hash_test = varint.Encode(nonce)
 	hash_test = append(hash_test, initial_hash...)

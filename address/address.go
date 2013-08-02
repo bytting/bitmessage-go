@@ -30,15 +30,16 @@ import (
 	"bitmessage-go/varint"
 )
 
-type Address struct {
-	Identifier                string
-	SigningKey, EncryptionKey *bitecdsa.PrivateKey
+type address struct {
+	Identifier    string
+	SigningKey    *bitecdsa.PrivateKey
+	EncryptionKey *bitecdsa.PrivateKey
 }
 
-func New(addressVersion, stream uint64, eighteenByteRipe bool) (*Address, error) {
+func New(addressVersion, stream uint64, eighteenByteRipe bool) (*address, error) {
 
 	var err error
-	addr := new(Address)
+	addr := new(address)
 	addr.SigningKey, err = bitecdsa.GenerateKey(bitelliptic.S256(), rand.Reader)
 	if err != nil {
 		return nil, errors.New("address.New: Error generating ecdsa signing keys")
