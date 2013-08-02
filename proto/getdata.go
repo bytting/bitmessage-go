@@ -15,9 +15,13 @@
 // CONTRIBUTORS AND COPYRIGHT HOLDERS (c) 2013:
 // Dag Robøle (BM-2DAS9BAs92wLKajVy9DS1LFcDiey5dxp5c)
 
-package main
+package proto
 
 import ()
 
-func main() {
+type getdata struct {
+}
+
+func NewGetdata() (*getdata, error) {
+	return nil, nil
 }

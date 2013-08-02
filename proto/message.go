@@ -15,7 +15,7 @@
 // CONTRIBUTORS AND COPYRIGHT HOLDERS (c) 2013:
 // Dag Robøle (BM-2DAS9BAs92wLKajVy9DS1LFcDiey5dxp5c)
 
-package msg
+package proto
 
 import (
 	"bytes"
@@ -24,7 +24,7 @@ import (
 	"errors"
 )
 
-type Message struct {
+type message struct {
 	Magic    uint32
 	Command  string
 	Length   uint32
@@ -32,9 +32,9 @@ type Message struct {
 	Payload  []byte
 }
 
-func New(cmd string, payload []byte) (*Message, error) {
+func NewMessage(cmd string, payload []byte) (*message, error) {
 
-	m := new(Message)
+	m := new(message)
 
 	if len(cmd) >= 12 {
 		return nil, errors.New("msg.NewMessage: Command is too long")
@@ -52,7 +52,7 @@ func New(cmd string, payload []byte) (*Message, error) {
 	return m, nil
 }
 
-func (m *Message) Serialize() ([]byte, error) {
+func (m *message) Serialize() ([]byte, error) {
 
 	if len(m.Command) == 0 || len(m.Checksum) != 4 || len(m.Payload) == 0 {
 		return nil, errors.New("msg.Serialize: Message is incomplete")
@@ -83,13 +83,13 @@ func (m *Message) Serialize() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func Deserialize(packet []byte) (*Message, error) {
+func Deserialize(packet []byte) (*message, error) {
 
 	if len(packet) < 25 {
 		return nil, errors.New("msg.Deserialize: Packet length is too small")
 	}
 
-	m := new(Message)
+	m := new(message)
 
 	m.Magic = binary.BigEndian.Uint32(packet[:4])
 	if m.Magic != 0xe9beb4d9 {

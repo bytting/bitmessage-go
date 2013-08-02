@@ -8,7 +8,7 @@ go test -i bitmessage-go/varint
 go test -i bitmessage-go/address
 go test -i bitmessage-go/wif
 go test -i bitmessage-go/pow
-go test -i bitmessage-go/msg
+go test -i bitmessage-go/proto
 
 go test bitmessage-go/varint
 go test bitmessage-go/base58
@@ -18,4 +18,4 @@ go test bitmessage-go/wif
 go test bitmessage-go/bitelliptic
 go test bitmessage-go/bitecdsa
 go test bitmessage-go/pow
-go test bitmessage-go/msg
+go test bitmessage-go/proto

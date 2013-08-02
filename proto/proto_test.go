@@ -1,11 +1,11 @@
-package msg
+package proto
 
 import (
 	"bytes"
 	"testing"
 )
 
-func TestMessage(t *testing.T) {
+func TestProto(t *testing.T) {
 
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
@@ -14,7 +14,7 @@ func TestMessage(t *testing.T) {
 	var buf bytes.Buffer
 	buf.WriteString("A few bytes")
 
-	m, err := New("test", buf.Bytes())
+	m, err := NewMessage("test", buf.Bytes())
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -48,4 +48,22 @@ func TestMessage(t *testing.T) {
 	if !bytes.Equal(m.Checksum, n.Checksum) {
 		t.Error("Checksum has changed after serialize/deserialize")
 	}
+
+	// verack
+
+	//addr, _ := NewAddr()
+
+	//broadcast, _ := NewBroadcast()
+
+	//getdata, _ := NewGetdata()
+
+	//getpubkey, _ := NewGetpubkey()
+
+	//inv, _ := NewInv()
+
+	//msg, _ := NewMsg()
+
+	//pubkey, _ := NewPubkey()
+
+	//version, _ := NewVersion()
 }
