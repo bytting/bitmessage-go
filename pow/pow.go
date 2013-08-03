@@ -69,21 +69,21 @@ func Nonce(payload []byte) uint64 {
 	payload_hash := sha.Sum(nil)
 	var target uint64 = MAX_UINT64 / uint64((len(payload)+PAYLOAD_LENGTH_EXTRA_BYTES+8)*AVERAGE_PROOF_OF_WORK_NONCE_TRIALS_PER_BYTE)
 
-	var nprocs int = 1000
-	var i, slice uint64 = 0, MAX_UINT64 / uint64(nprocs)
+	var nprocs uint64 = 1000
+	var i, slice uint64 = 0, MAX_UINT64 / nprocs
 
 	recv := make(chan uint64, nprocs)
 	done := make(chan bool, nprocs)
 	shutdown := false
 
-	for ; i < uint64(nprocs); i++ {
+	for ; i < nprocs; i++ {
 		go scan(i*slice, i*slice+slice, target, payload_hash, recv, done, &shutdown)
 	}
 
 	nonce := <-recv
 
 	shutdown = true
-	for i = 0; i < uint64(nprocs); i++ {
+	for i = 0; i < nprocs; i++ {
 		<-done
 	}
 
