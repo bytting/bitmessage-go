@@ -65,7 +65,7 @@ func Decode(wif string) (*bitecdsa.PrivateKey, error) {
 	return keys, nil
 }
 
-func Validate(wif string) (bool, error) {
+func ValidateChecksum(wif string) (bool, error) {
 
 	if len(wif) < 6 {
 		return false, errors.New("wif.Validate: wif is too short")
@@ -75,10 +75,9 @@ func Validate(wif string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	raw := extended[1 : len(extended)-4]
 	cs1 := extended[len(extended)-4:]
 	sha1, sha2 := sha256.New(), sha256.New()
-	sha1.Write(raw)
+	sha1.Write(extended[:len(extended)-4])
 	sha2.Write(sha1.Sum(nil))
 	cs2 := sha2.Sum(nil)[:4]
 	return bytes.Compare(cs1, cs2) == 0, nil

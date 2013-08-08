@@ -22,7 +22,7 @@ func TestPOW(t *testing.T) {
 	new_payload := varint.Encode(nonce)
 	new_payload = append(new_payload, payload...)
 
-	if !Validate(new_payload) {
+	if !ValidateNonce(new_payload) {
 		t.Error("Nonce %d is not valid for payload", nonce)
 	}
 }

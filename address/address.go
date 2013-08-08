@@ -97,7 +97,7 @@ func New(addressVersion, stream uint64, eighteenByteRipe bool) (*address, error)
 	return addr, nil
 }
 
-func Validate(address string) (bool, error) {
+func ValidateChecksum(address string) (bool, error) {
 
 	b, err := base58.Decode(address[3:])
 	if err != nil {
@@ -116,7 +116,7 @@ func Validate(address string) (bool, error) {
 
 func GetStream(address string) (uint64, error) {
 
-	valid, err := Validate(address)
+	valid, err := ValidateChecksum(address)
 	if err != nil {
 		return 0, err
 	}

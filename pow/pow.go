@@ -90,7 +90,7 @@ func Nonce(payload []byte) uint64 {
 	return nonce
 }
 
-func Validate(payload []byte) bool {
+func ValidateNonce(payload []byte) bool {
 
 	if len(payload) < 2 {
 		return false

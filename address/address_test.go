@@ -20,7 +20,7 @@ func TestAddress(t *testing.T) {
 		t.Error("Address does not start with correct prefix. Want BM-2D, got %s\n", addr.Identifier[:5])
 	}
 
-	valid, err := Validate(addr.Identifier)
+	valid, err := ValidateChecksum(addr.Identifier)
 	if err != nil {
 		t.Error(err.Error())
 	}

@@ -10,7 +10,7 @@ import (
 	"bitmessage-go/bitelliptic"
 )
 
-func TestKeys(t *testing.T) {
+func TestWIF(t *testing.T) {
 
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
@@ -45,6 +45,15 @@ func TestKeys(t *testing.T) {
 
 	if !keys2.PublicKey.BitCurve.IsOnCurve(keys2.PublicKey.X, keys2.PublicKey.Y) {
 		t.Error("Public point is not on curve\n")
+	}
+
+	ok, err := ValidateChecksum(wif)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if !ok {
+		t.Error("Invalid checksum")
 	}
 
 	// 0437a3191fe90d9b483324c28ecd019479e708cfcff96800131c113ec30a0646ee95c31b4c5656b1e7122f071ae4471a97511f372179147277ea2a2087147f9486
