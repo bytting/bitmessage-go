@@ -19,9 +19,50 @@ package proto
 
 import ()
 
-type broadcast struct {
+type broadcast2 struct {
+	Nonce            uint64
+	Time             uint32 // FIXME uint64
+	BroadcastVersion uint64
+	StreamNumber     uint64
+	Encrypted        []byte
 }
 
-func NewBroadcast() (*broadcast, error) {
+func NewBroadcast2() (*broadcast2, error) {
 	return nil, nil
+}
+
+func (v *broadcast2) Serialize() ([]byte, error) {
+	return nil, nil
+}
+
+func (v *broadcast2) Deserialize(packet []byte) error {
+	return nil
+}
+
+type unencryptedBroadcast struct {
+	BroadcastVersion    uint64
+	AddressVersion      uint64
+	StreamNumber        uint64
+	Behavior            uint32
+	PublicSigningKey    []byte
+	PublicEncryptionKey []byte
+	NonceTrialsPerByte  uint64
+	ExtraBytes          uint64
+	Encoding            uint64
+	MessageLength       uint64
+	Message             []byte
+	SignatureLength     uint64
+	Signature           []byte
+}
+
+func NewUnencryptedBroadcast() (*unencryptedBroadcast, error) {
+	return nil, nil
+}
+
+func (v *unencryptedBroadcast) Serialize() ([]byte, error) {
+	return nil, nil
+}
+
+func (v *unencryptedBroadcast) Deserialize(packet []byte) error {
+	return nil
 }

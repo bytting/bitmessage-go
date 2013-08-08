@@ -20,8 +20,18 @@ package proto
 import ()
 
 type getdata struct {
+	Count     uint64
+	Inventory []byte
 }
 
 func NewGetdata() (*getdata, error) {
 	return nil, nil
+}
+
+func (v *getdata) Serialize() ([]byte, error) {
+	return nil, nil
+}
+
+func (v *getdata) Deserialize(packet []byte) error {
+	return nil
 }

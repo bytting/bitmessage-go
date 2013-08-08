@@ -32,11 +32,16 @@ type message struct {
 	Payload  []byte
 }
 
-func NewMessage(cmd string, payload []byte) (*message, error) {
+func NewMessage() (*message, error) {
+
+	return new(message), nil
+}
+
+func NewMessageFromCommand(cmd string, payload []byte) (*message, error) {
 
 	m := new(message)
 
-	if len(cmd) >= 12 {
+	if len(cmd) > 11 {
 		return nil, errors.New("msg.NewMessage: Command is too long")
 	}
 
@@ -83,17 +88,15 @@ func (m *message) Serialize() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func Deserialize(packet []byte) (*message, error) {
+func (m *message) Deserialize(packet []byte) error {
 
 	if len(packet) < 25 {
-		return nil, errors.New("msg.Deserialize: Packet length is too small")
+		return errors.New("msg.Deserialize: Packet length is too small")
 	}
-
-	m := new(message)
 
 	m.Magic = binary.BigEndian.Uint32(packet[:4])
 	if m.Magic != 0xe9beb4d9 {
-		return nil, errors.New("msg.Deserialize: Magic number is invalid")
+		return errors.New("msg.Deserialize: Magic number is invalid")
 	}
 
 	var cmd bytes.Buffer
@@ -110,8 +113,8 @@ func Deserialize(packet []byte) (*message, error) {
 	m.Payload = packet[24:]
 
 	if int(m.Length) != len(m.Payload) {
-		return nil, errors.New("msg.Deserialize: Message length is invalid")
+		return errors.New("msg.Deserialize: Message length is invalid")
 	}
 
-	return m, nil
+	return nil
 }

@@ -20,8 +20,20 @@ package proto
 import ()
 
 type msg struct {
+	Nonce        uint64
+	Time         uint32 // FIXME uint64
+	StreamNumber uint64
+	Encrypted    []byte
 }
 
 func NewMsg() (*msg, error) {
 	return nil, nil
+}
+
+func (v *msg) Serialize() ([]byte, error) {
+	return nil, nil
+}
+
+func (v *msg) Deserialize(packet []byte) error {
+	return nil
 }

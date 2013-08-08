@@ -22,6 +22,7 @@ import (
 	"crypto/rand"
 	"crypto/sha512"
 	"errors"
+	"strings"
 
 	"bitmessage-go/base58"
 	"bitmessage-go/bitecdsa"
@@ -53,14 +54,14 @@ func New(addressVersion, stream uint64, eighteenByteRipe bool) (*address, error)
 			return nil, errors.New("address.New: Error generating ecdsa encryption keys")
 		}
 
-		var keyMerge []byte
-		keyMerge = append(keyMerge, addr.SigningKey.PublicKey.X.Bytes()...)
-		keyMerge = append(keyMerge, addr.SigningKey.PublicKey.Y.Bytes()...)
-		keyMerge = append(keyMerge, addr.EncryptionKey.PublicKey.X.Bytes()...)
-		keyMerge = append(keyMerge, addr.EncryptionKey.PublicKey.Y.Bytes()...)
+		var keyMerge bytes.Buffer
+		keyMerge.Write(addr.SigningKey.PublicKey.X.Bytes())
+		keyMerge.Write(addr.SigningKey.PublicKey.Y.Bytes())
+		keyMerge.Write(addr.EncryptionKey.PublicKey.X.Bytes())
+		keyMerge.Write(addr.EncryptionKey.PublicKey.Y.Bytes())
 
 		sha := sha512.New()
-		sha.Write(keyMerge)
+		sha.Write(keyMerge.Bytes())
 
 		ripemd := ripemd160.New()
 		ripemd.Write(sha.Sum(nil))
@@ -79,22 +80,60 @@ func New(addressVersion, stream uint64, eighteenByteRipe bool) (*address, error)
 		}
 	}
 
-	bmAddr := varint.Encode(addressVersion)
-	bmAddr = append(bmAddr, varint.Encode(stream)...)
-	bmAddr = append(bmAddr, ripe...)
+	var bmAddr bytes.Buffer
+	bmAddr.Write(varint.Encode(addressVersion))
+	bmAddr.Write(varint.Encode(stream))
+	bmAddr.Write(ripe)
 
 	sha1, sha2 := sha512.New(), sha512.New()
-	sha1.Write(bmAddr)
+	sha1.Write(bmAddr.Bytes())
 	sha2.Write(sha1.Sum(nil))
 	checksum := sha2.Sum(nil)[:4]
-	bmAddr = append(bmAddr, checksum...)
+	bmAddr.Write(checksum)
 
-	encoded, err := base58.Encode(bmAddr)
+	encoded, err := base58.Encode(bmAddr.Bytes())
 	if err != nil {
 		return nil, err
 	}
 	addr.Identifier = "BM-" + encoded
+
 	return addr, nil
+}
+
+func (addr *address) Version() (uint64, error) {
+
+	b, err := base58.Decode(addr.Identifier[3:])
+	if err != nil {
+		return 0, err
+	}
+	v, _ := varint.Decode(b)
+
+	return v, nil
+}
+
+func (addr *address) Stream() (uint64, error) {
+
+	b, err := base58.Decode(addr.Identifier[3:])
+	if err != nil {
+		return 0, err
+	}
+	_, nb := varint.Decode(b)
+	s, _ := varint.Decode(b[nb:])
+
+	return s, nil
+}
+
+func ValidateIdentifier(identifier string) bool {
+
+	if !strings.HasPrefix(identifier, "BM-") {
+		return false
+	}
+
+	if len(identifier) < 25 { // prefix + ripe + checksum
+		return false
+	}
+
+	return true
 }
 
 func ValidateChecksum(address string) (bool, error) {
@@ -112,24 +151,4 @@ func ValidateChecksum(address string) (bool, error) {
 	cs2 := sha2.Sum(nil)[:4]
 
 	return bytes.Compare(cs1, cs2) == 0, nil
-}
-
-func GetStream(address string) (uint64, error) {
-
-	valid, err := ValidateChecksum(address)
-	if err != nil {
-		return 0, err
-	}
-
-	if !valid {
-		return 0, errors.New("address.GetStream: Invalid address checksum")
-	}
-
-	b, err := base58.Decode(address[3:])
-	if err != nil {
-		return 0, err
-	}
-	_, nb := varint.Decode(b)
-	s, _ := varint.Decode(b[nb:])
-	return s, nil
 }

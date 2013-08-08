@@ -20,8 +20,21 @@ package proto
 import ()
 
 type addr struct {
+	Count    uint64
+	AddrList *netaddr
 }
 
 func NewAddr() (*addr, error) {
+
 	return nil, nil
+}
+
+func (v *addr) Serialize() ([]byte, error) {
+
+	return nil, nil
+}
+
+func (v *addr) Deserialize(packet []byte) error {
+
+	return nil
 }

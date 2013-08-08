@@ -20,8 +20,18 @@ package proto
 import ()
 
 type inv struct {
+	Count     uint64
+	Inventory []byte
 }
 
 func NewInv() (*inv, error) {
 	return nil, nil
+}
+
+func (v *inv) Serialize() ([]byte, error) {
+	return nil, nil
+}
+
+func (v *inv) Deserialize(packet []byte) error {
+	return nil
 }

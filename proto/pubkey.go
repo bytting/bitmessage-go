@@ -19,9 +19,28 @@ package proto
 
 import ()
 
-type pubkey struct {
+type pubkey3 struct {
+	Nonce               uint64
+	Time                uint32 // FIXME uint64
+	AddressVersion      uint64
+	StreamNumber        uint64
+	Behavior            uint32
+	PublicSigningKey    []byte
+	PublicEncryptionKey []byte
+	NonceTrialsPerByte  uint64
+	ExtraBytes          uint64
+	SignatureLength     uint64
+	Signature           []byte
 }
 
-func NewPubkey() (*pubkey, error) {
+func NewPubkey3() (*pubkey3, error) {
 	return nil, nil
+}
+
+func (v *pubkey3) Serialize() ([]byte, error) {
+	return nil, nil
+}
+
+func (v *pubkey3) Deserialize(packet []byte) error {
+	return nil
 }

@@ -20,8 +20,21 @@ package proto
 import ()
 
 type getpubkey struct {
+	Nonce          uint64
+	Time           uint32 // FIXME uint64
+	AddressVersion uint64
+	StreamNumber   uint64
+	PubKeyHash     []byte
 }
 
 func NewGetpubkey() (*getpubkey, error) {
 	return nil, nil
+}
+
+func (v *getpubkey) Serialize() ([]byte, error) {
+	return nil, nil
+}
+
+func (v *getpubkey) Deserialize(packet []byte) error {
+	return nil
 }

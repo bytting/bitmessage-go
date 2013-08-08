@@ -14,7 +14,7 @@ func TestProto(t *testing.T) {
 	var buf bytes.Buffer
 	buf.WriteString("A few bytes")
 
-	m, err := NewMessage("test", buf.Bytes())
+	m, err := NewMessageFromCommand("test", buf.Bytes())
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -24,7 +24,9 @@ func TestProto(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	n, err := Deserialize(s)
+	n, _ := NewMessage()
+
+	err = n.Deserialize(s)
 	if err != nil {
 		t.Error(err.Error())
 	}

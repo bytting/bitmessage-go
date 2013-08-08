@@ -1,7 +1,6 @@
 package address
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -16,8 +15,8 @@ func TestAddress(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if !strings.HasPrefix(addr.Identifier, "BM-2D") {
-		t.Error("Address does not start with correct prefix. Want BM-2D, got %s\n", addr.Identifier[:5])
+	if !ValidateIdentifier(addr.Identifier) {
+		t.Error("Invalid address identifier %s\n", addr.Identifier)
 	}
 
 	valid, err := ValidateChecksum(addr.Identifier)
@@ -29,10 +28,20 @@ func TestAddress(t *testing.T) {
 		t.Error("Address checksum incorrect\n")
 	}
 
-	stream, err := GetStream(addr.Identifier)
+	ver, err := addr.Version()
 	if err != nil {
 		t.Error(err.Error())
 	}
+
+	if ver != 3 {
+		t.Error("Address version incorrect. Want 3, got %d\n", ver)
+	}
+
+	stream, err := addr.Stream()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
 	if stream != 1 {
 		t.Error("Address stream number incorrect. Want 1, got %d\n", stream)
 	}

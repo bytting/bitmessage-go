@@ -19,25 +19,11 @@ package proto
 
 import ()
 
-type version struct {
-	Version       uint32
-	Services      uint64
-	Timestamp     uint64
-	AddrRecv      *netaddr
-	AddrFrom      *netaddr
-	Nonce         uint64
-	UserAgent     *varstr
-	StreamNumbers *varintlist
+type varstr struct {
+	Length uint64
+	String string
 }
 
-func NewVersion() (*version, error) {
+func NewVarstr() (*varstr, error) {
 	return nil, nil
-}
-
-func (v *version) Serialize() ([]byte, error) {
-	return nil, nil
-}
-
-func (v *version) Deserialize(packet []byte) error {
-	return nil
 }
