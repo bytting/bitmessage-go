@@ -63,6 +63,10 @@ func NewNetaddrFrom(stream uint32, services uint64, ip []byte, port uint16) *net
 
 func (na *netaddr) Serialize() ([]byte, error) {
 
+	if na.Time == 0 || na.Stream == 0 {
+		return nil, errors.New("netaddr.Serialize: cannot serialize uninitialized netaddr")
+	}
+
 	var buf bytes.Buffer
 
 	binary.Write(&buf, binary.BigEndian, na.Time)

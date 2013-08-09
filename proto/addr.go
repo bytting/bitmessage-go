@@ -43,6 +43,11 @@ func (a *addr) Clear() {
 	a.AddrList = nil
 }
 
+func (a *addr) Count() uint64 {
+
+	return uint64(len(a.AddrList))
+}
+
 func (a *addr) Add(na *netaddr) {
 
 	a.AddrList = append(a.AddrList, na)
