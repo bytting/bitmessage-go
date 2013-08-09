@@ -55,12 +55,17 @@ func Decode(wif string) (*bitecdsa.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	decoded := extended[1 : len(extended)-4]
 	keys := new(bitecdsa.PrivateKey)
 	keys.D = new(big.Int).SetBytes(decoded)
 	keys.PublicKey.BitCurve = bitelliptic.S256()
 	for keys.PublicKey.X == nil {
 		keys.PublicKey.X, keys.PublicKey.Y = keys.PublicKey.BitCurve.ScalarBaseMult(decoded)
+	}
+
+	if !keys.BitCurve.IsOnCurve(keys.PublicKey.X, keys.PublicKey.Y) {
+		return nil, errors.New("wif.Decode: Point is not on curve")
 	}
 	return keys, nil
 }
@@ -75,6 +80,7 @@ func ValidateChecksum(wif string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	cs1 := extended[len(extended)-4:]
 	sha1, sha2 := sha256.New(), sha256.New()
 	sha1.Write(extended[:len(extended)-4])

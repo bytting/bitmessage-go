@@ -21,7 +21,7 @@ import ()
 
 type broadcast2 struct {
 	Nonce            uint64
-	Time             uint32 // FIXME uint64
+	Time             int64
 	BroadcastVersion uint64
 	StreamNumber     uint64
 	Encrypted        []byte

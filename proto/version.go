@@ -22,7 +22,7 @@ import ()
 type version struct {
 	Version       uint32
 	Services      uint64
-	Timestamp     uint64
+	Timestamp     int64
 	AddrRecv      *netaddr
 	AddrFrom      *netaddr
 	Nonce         uint64

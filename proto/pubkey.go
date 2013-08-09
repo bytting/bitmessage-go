@@ -21,7 +21,7 @@ import ()
 
 type pubkey3 struct {
 	Nonce               uint64
-	Time                uint32 // FIXME uint64
+	Time                int64
 	AddressVersion      uint64
 	StreamNumber        uint64
 	Behavior            uint32

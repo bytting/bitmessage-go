@@ -25,6 +25,15 @@ import (
 	"bitmessage-go/varint"
 )
 
+func init() {
+
+	ncpu := runtime.NumCPU() - 1
+	if ncpu < 1 {
+		ncpu = 1
+	}
+	runtime.GOMAXPROCS(ncpu)
+}
+
 const (
 	PAYLOAD_LENGTH_EXTRA_BYTES                  = 14000
 	AVERAGE_PROOF_OF_WORK_NONCE_TRIALS_PER_BYTE = 320
@@ -57,12 +66,6 @@ func scan(offset_start, offset_end, target uint64, payload_hash []byte, out chan
 }
 
 func Nonce(payload []byte) uint64 {
-
-	ncpu := runtime.NumCPU() - 1
-	if ncpu < 1 {
-		ncpu = 1
-	}
-	runtime.GOMAXPROCS(ncpu)
 
 	sha := sha512.New()
 	sha.Write(payload)

@@ -21,7 +21,7 @@ import ()
 
 type msg struct {
 	Nonce        uint64
-	Time         uint32 // FIXME uint64
+	Time         int64
 	StreamNumber uint64
 	Encrypted    []byte
 }

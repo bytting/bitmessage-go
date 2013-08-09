@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestProto(t *testing.T) {
+func TestMessage(t *testing.T) {
 
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")

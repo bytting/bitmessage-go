@@ -20,13 +20,29 @@ package proto
 import ()
 
 type addr struct {
-	Count    uint64
-	AddrList *netaddr
+
+	// Number of address entries (max: 1000)
+	count uint64
+
+	// Address of other nodes on the network.
+	addrList []*netaddr
 }
 
-func NewAddr() (*addr, error) {
+func NewAddr() *addr {
 
-	return nil, nil
+	return new(addr)
+}
+
+func (a *addr) Clear() {
+
+	a.addrList = nil
+	a.count = 0
+}
+
+func (a *addr) Add(na *netaddr) {
+
+	a.addrList = append(a.addrList, na)
+	a.count++
 }
 
 func (v *addr) Serialize() ([]byte, error) {

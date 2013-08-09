@@ -56,7 +56,9 @@ func TestWIF(t *testing.T) {
 		t.Error("Invalid checksum")
 	}
 
-	// 0437a3191fe90d9b483324c28ecd019479e708cfcff96800131c113ec30a0646ee95c31b4c5656b1e7122f071ae4471a97511f372179147277ea2a2087147f9486
+	// WIF: 5HtKNfWZH4QQZPUGRadud7wfyPGEKLhQJfnYPGvpiivgwfrHfpX
+	// Priv. hex: 092715c60df8c561c832ab3c804be0a0f90b108072133df7d1e348e2570be801
+	// Pub. uncompressed hex: 0437a3191fe90d9b483324c28ecd019479e708cfcff96800131c113ec30a0646ee95c31b4c5656b1e7122f071ae4471a97511f372179147277ea2a2087147f9486
 
 	keys3, err := Decode("5HtKNfWZH4QQZPUGRadud7wfyPGEKLhQJfnYPGvpiivgwfrHfpX")
 	privHex := hex.EncodeToString(keys3.D.Bytes())
@@ -64,7 +66,6 @@ func TestWIF(t *testing.T) {
 		t.Error("Private key (keys3) is wrong. Expected 092715c60df8c561c832ab3c804be0a0f90b108072133df7d1e348e2570be801, got %s\n", privHex)
 	}
 
-	//pub := elliptic.Marshal(keys3.PublicKey.Curve, keys3.PublicKey.X, keys3.PublicKey.Y)
 	var pub bytes.Buffer
 	pub.WriteByte(byte(0x04))
 	pub.Write(keys3.PublicKey.X.Bytes())
