@@ -18,61 +18,73 @@
 package proto
 
 import (
+	"bytes"
 	"encoding/binary"
+	"errors"
 	"time"
 )
 
 type netaddr struct {
 
 	// the Time. Protocol version 1 clients use 4 byte time while protocol version 2 clients use 8 byte time.
-	time [8]byte
+	Time int64
 
 	// Stream number for this node
-	stream [4]byte
+	Stream uint32
 
 	// same service(s) listed in version
-	services [8]byte
+	Services uint64
 
 	// IPv6 address. The original client only supports IPv4 and only reads the last 4 bytes to get the IPv4 address. However, the IPv4 address is written into the message as a 16 byte IPv4-mapped IPv6 address
 	// (12 bytes 00 00 00 00 00 00 00 00 00 00 FF FF, followed by the 4 bytes of the IPv4 address).
-	ip [16]byte
+	IP [16]byte
 
 	// port number
-	port [2]byte
+	Port uint16
 }
 
-func NewNetaddr(stream uint32, services uint64, ip []byte, port uint16) *netaddr {
+func NewNetaddr() *netaddr {
 
-	a := new(netaddr)
-	binary.BigEndian.PutUint64(a.time[:], uint64(time.Now().Unix()))
-	binary.BigEndian.PutUint32(a.stream[:], stream)
-	binary.BigEndian.PutUint64(a.services[:], services)
-	copy(a.ip[:], ip)
-	binary.BigEndian.PutUint16(a.port[:], port)
-	return a
+	return new(netaddr)
 }
 
-func (na *netaddr) Time() int64 {
+func NewNetaddrFrom(stream uint32, services uint64, ip []byte, port uint16) *netaddr {
 
-	return int64(binary.BigEndian.Uint64(na.time[:]))
+	na := new(netaddr)
+
+	na.Time = time.Now().Unix()
+	na.Stream = stream
+	na.Services = services
+	copy(na.IP[:], ip)
+	na.Port = port
+
+	return na
 }
 
-func (na *netaddr) Stream() uint32 {
+func (na *netaddr) Serialize() ([]byte, error) {
 
-	return binary.BigEndian.Uint32(na.stream[:])
+	var buf bytes.Buffer
+
+	binary.Write(&buf, binary.BigEndian, na.Time)
+	binary.Write(&buf, binary.BigEndian, na.Stream)
+	binary.Write(&buf, binary.BigEndian, na.Services)
+	buf.Write(na.IP[:])
+	binary.Write(&buf, binary.BigEndian, na.Port)
+
+	return buf.Bytes(), nil
 }
 
-func (na *netaddr) Services() uint64 {
+func (na *netaddr) Deserialize(packet []byte) error {
 
-	return binary.BigEndian.Uint64(na.services[:])
-}
+	if len(packet) < 38 { // time + stream + services + ip + port
+		return errors.New("netaddr.Deserialize: packet is too short")
+	}
 
-func (na *netaddr) IP() []byte {
+	na.Time = int64(binary.BigEndian.Uint64(packet[:8]))
+	na.Stream = binary.BigEndian.Uint32(packet[8:12])
+	na.Services = binary.BigEndian.Uint64(packet[12:20])
+	copy(na.IP[:], packet[20:36])
+	na.Port = binary.BigEndian.Uint16(packet[36:38])
 
-	return na.ip[:]
-}
-
-func (na *netaddr) Port() uint16 {
-
-	return binary.BigEndian.Uint16(na.port[:])
+	return nil
 }

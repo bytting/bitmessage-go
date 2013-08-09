@@ -17,15 +17,20 @@
 
 package proto
 
-import ()
+import (
+	"bytes"
+	"errors"
+
+	"bitmessage-go/varint"
+)
 
 type addr struct {
 
 	// Number of address entries (max: 1000)
-	count uint64
+	//Count uint64
 
 	// Address of other nodes on the network.
-	addrList []*netaddr
+	AddrList []*netaddr
 }
 
 func NewAddr() *addr {
@@ -35,22 +40,47 @@ func NewAddr() *addr {
 
 func (a *addr) Clear() {
 
-	a.addrList = nil
-	a.count = 0
+	a.AddrList = nil
+	//a.Count = 0
 }
 
 func (a *addr) Add(na *netaddr) {
 
-	a.addrList = append(a.addrList, na)
-	a.count++
+	a.AddrList = append(a.AddrList, na)
+	//a.Count++
 }
 
-func (v *addr) Serialize() ([]byte, error) {
+func (a *addr) Serialize() ([]byte, error) {
 
-	return nil, nil
+	var buf bytes.Buffer
+
+	buf.Write(varint.Encode(uint64(len(a.AddrList))))
+	for i := range a.AddrList {
+		b, _ := a.AddrList[i].Serialize()
+		buf.Write(b)
+	}
+
+	return buf.Bytes(), nil
 }
 
-func (v *addr) Deserialize(packet []byte) error {
+func (a *addr) Deserialize(packet []byte) error {
+
+	if len(packet) < 8 {
+		return errors.New("addr.Deserialize: packet is too short for count extraction")
+	}
+
+	cnt, nb := varint.Decode(packet[:8])
+
+	if uint64(len(packet)) < uint64(nb)+(cnt*38) { // sizeof(netaddr) == 38
+		return errors.New("addr.Deserialize: packet is too short for netaddr extraction")
+	}
+
+	for i := uint64(0); i < cnt; i++ {
+		off := uint64(nb) + (i * 38)
+		na := NewNetaddr()
+		na.Deserialize(packet[off : off+38])
+		a.Add(na)
+	}
 
 	return nil
 }

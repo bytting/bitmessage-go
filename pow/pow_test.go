@@ -1,9 +1,10 @@
 package pow
 
 import (
-	"bitmessage-go/varint"
 	"io/ioutil"
 	"testing"
+
+	"bitmessage-go/varint"
 )
 
 func TestPOW(t *testing.T) {
