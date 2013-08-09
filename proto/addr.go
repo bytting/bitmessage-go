@@ -27,7 +27,7 @@ import (
 type addr struct {
 
 	// Number of address entries (max: 1000)
-	//Count uint64
+	//Count uint64 // Replaced by len(AddrList)
 
 	// Address of other nodes on the network.
 	AddrList []*netaddr
@@ -41,13 +41,11 @@ func NewAddr() *addr {
 func (a *addr) Clear() {
 
 	a.AddrList = nil
-	//a.Count = 0
 }
 
 func (a *addr) Add(na *netaddr) {
 
 	a.AddrList = append(a.AddrList, na)
-	//a.Count++
 }
 
 func (a *addr) Serialize() ([]byte, error) {
@@ -56,7 +54,10 @@ func (a *addr) Serialize() ([]byte, error) {
 
 	buf.Write(varint.Encode(uint64(len(a.AddrList))))
 	for i := range a.AddrList {
-		b, _ := a.AddrList[i].Serialize()
+		b, err := a.AddrList[i].Serialize()
+		if err != nil {
+			return nil, err
+		}
 		buf.Write(b)
 	}
 
@@ -78,7 +79,9 @@ func (a *addr) Deserialize(packet []byte) error {
 	for i := uint64(0); i < cnt; i++ {
 		off := uint64(nb) + (i * 38)
 		na := NewNetaddr()
-		na.Deserialize(packet[off : off+38])
+		if err := na.Deserialize(packet[off : off+38]); err != nil {
+			return err
+		}
 		a.Add(na)
 	}
 

@@ -25,11 +25,21 @@ import (
 )
 
 type message struct {
-	Magic    uint32
-	Command  string
-	Length   uint32
+
+	// Magic value indicating message origin network, and used to seek to next message when stream state is unknown
+	Magic uint32
+
+	// ASCII string identifying the packet content, NULL padded (non-NULL padding results in packet rejected)
+	Command string
+
+	// Length of payload in number of bytes
+	Length uint32
+
+	// First 4 bytes of sha512(payload)
 	Checksum []byte
-	Payload  []byte
+
+	// The actual data, a message or an object
+	Payload []byte
 }
 
 func NewMessage() (*message, error) {
