@@ -71,11 +71,11 @@ func (a *addr) Serialize() ([]byte, error) {
 
 func (a *addr) Deserialize(packet []byte) error {
 
-	if len(packet) < 8 {
+	if len(packet) < 1 {
 		return errors.New("addr.Deserialize: packet is too short for count extraction")
 	}
 
-	cnt, nb := varint.Decode(packet[:8])
+	cnt, nb := varint.Decode(packet[:])
 
 	if uint64(len(packet)) < uint64(nb)+(cnt*38) { // sizeof(netaddr) == 38
 		return errors.New("addr.Deserialize: packet is too short for netaddr extraction")

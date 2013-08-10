@@ -25,6 +25,12 @@ import (
 	"bitmessage-go/varint"
 )
 
+const (
+	PAYLOAD_LENGTH_EXTRA_BYTES                  = 14000
+	AVERAGE_PROOF_OF_WORK_NONCE_TRIALS_PER_BYTE = 320
+	MAX_UINT64                                  = 18446744073709551615
+)
+
 func init() {
 
 	ncpu := runtime.NumCPU() - 1
@@ -33,12 +39,6 @@ func init() {
 	}
 	runtime.GOMAXPROCS(ncpu)
 }
-
-const (
-	PAYLOAD_LENGTH_EXTRA_BYTES                  = 14000
-	AVERAGE_PROOF_OF_WORK_NONCE_TRIALS_PER_BYTE = 320
-	MAX_UINT64                                  = 18446744073709551615
-)
 
 func scan(offset_start, offset_end, target uint64, payload_hash []byte, out chan<- uint64, done chan<- bool, shutdown *bool) {
 
